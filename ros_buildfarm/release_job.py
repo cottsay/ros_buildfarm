@@ -131,11 +131,13 @@ def configure_release_jobs(
     if not jenkins:
         all_job_configs[job_name] = job_config
 
+    """ DISABLED
     job_name, job_config = configure_sync_packages_to_main_job(
         config_url, rosdistro_name, release_build_name,
         config=config, build_file=build_file, jenkins=jenkins, dry_run=dry_run)
     if not jenkins:
         all_job_configs[job_name] = job_config
+    """
 
     for os_name, os_code_name in platforms:
         for arch in sorted(build_file.targets[os_name][os_code_name]):
@@ -452,10 +454,12 @@ def configure_release_job(
             dry_run=dry_run)
 
     if generate_sync_packages_jobs:
+        """ DISABLED
         configure_sync_packages_to_main_job(
             config_url, rosdistro_name, release_build_name,
             config=config, build_file=build_file, jenkins=jenkins,
             dry_run=dry_run)
+        """
         for arch in build_file.targets[os_name][os_code_name]:
             configure_sync_packages_to_testing_job(
                 config_url, rosdistro_name, release_build_name,
