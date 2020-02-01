@@ -31,6 +31,7 @@ from ros_buildfarm.common \
 from ros_buildfarm.common import get_sourcedeb_job_name
 from ros_buildfarm.common import get_system_architecture
 from ros_buildfarm.common import JobValidationError
+from ros_buildfarm.common import package_format_mapping
 from ros_buildfarm.common import write_groovy_script_and_configs
 from ros_buildfarm.config import get_distribution_file
 from ros_buildfarm.config import get_index as get_config_index
@@ -140,7 +141,7 @@ def configure_release_jobs(
         for arch in sorted(build_file.targets[os_name][os_code_name]):
             job_name, job_config = configure_sync_packages_to_testing_job(
                 config_url, rosdistro_name, release_build_name,
-                os_code_name, arch,
+                os_name, os_code_name, arch,
                 config=config, build_file=build_file, jenkins=jenkins,
                 dry_run=dry_run)
             if not jenkins:
@@ -458,7 +459,7 @@ def configure_release_job(
         for arch in build_file.targets[os_name][os_code_name]:
             configure_sync_packages_to_testing_job(
                 config_url, rosdistro_name, release_build_name,
-                os_code_name, arch,
+                os_name, os_code_name, arch,
                 config=config, build_file=build_file, jenkins=jenkins,
                 dry_run=dry_run)
 
@@ -584,7 +585,8 @@ def _get_sourcedeb_job_config(
         config, build_file, os_name, os_code_name,
         pkg_name, repo_name, release_repository, cached_pkgs=None,
         is_disabled=False, other_build_files_same_platform=None):
-    template_name = 'release/deb/sourcepkg_job.xml.em'
+    package_format = package_format_mapping[os_name]
+    template_name = 'release/%s/sourcepkg_job.xml.em' % package_format
 
     repository_args, script_generating_key_files = \
         get_repositories_and_script_generating_key_files(build_file=build_file)
@@ -623,8 +625,8 @@ def _get_sourcedeb_job_config(
         'job_priority': build_file.jenkins_source_job_priority,
         'node_label': get_node_label(
             build_file.jenkins_source_job_label,
-            get_default_node_label('%s_%s' % (
-                rosdistro_name, 'sourcedeb'))),
+            get_default_node_label('%s_%s%s' % (
+                rosdistro_name, 'source', package_format))),
 
         'disabled': is_disabled,
 
@@ -667,7 +669,8 @@ def _get_binarydeb_job_config(
         pkg_name, repo_name, release_repository,
         cached_pkgs=None, upstream_job_names=None,
         is_disabled=False):
-    template_name = 'release/deb/binarypkg_job.xml.em'
+    package_format = package_format_mapping[os_name]
+    template_name = 'release/%s/binarypkg_job.xml.em' % package_format
 
     repository_args, script_generating_key_files = \
         get_repositories_and_script_generating_key_files(build_file=build_file)
@@ -699,8 +702,8 @@ def _get_binarydeb_job_config(
         'job_priority': build_file.jenkins_binary_job_priority,
         'node_label': get_node_label(
             build_file.jenkins_binary_job_label,
-            get_default_node_label('%s_%s_%s' % (
-                rosdistro_name, 'binarydeb', release_build_name))),
+            get_default_node_label('%s_%s%s_%s' % (
+                rosdistro_name, 'binary', package_format, release_build_name))),
 
         'disabled': is_disabled,
 
@@ -781,8 +784,8 @@ def _get_import_package_job_config(build_file):
 
 
 def configure_sync_packages_to_testing_job(
-        config_url, rosdistro_name, release_build_name, os_code_name, arch,
-        config=None, build_file=None, jenkins=None, dry_run=False):
+        config_url, rosdistro_name, release_build_name, os_name, os_code_name,
+        arch, config=None, build_file=None, jenkins=None, dry_run=False):
     if config is None:
         config = get_config_index(config_url)
     if build_file is None:
@@ -795,8 +798,8 @@ def configure_sync_packages_to_testing_job(
     job_name = get_sync_packages_to_testing_job_name(
         rosdistro_name, os_code_name, arch)
     job_config = _get_sync_packages_to_testing_job_config(
-        config_url, rosdistro_name, release_build_name, os_code_name, arch,
-        config, build_file)
+        config_url, rosdistro_name, release_build_name, os_name, os_code_name,
+        arch, config, build_file)
 
     # jenkinsapi.jenkins.Jenkins evaluates to false if job count is zero
     if isinstance(jenkins, object) and jenkins is not False:
@@ -813,8 +816,8 @@ def get_sync_packages_to_testing_job_name(
 
 
 def _get_sync_packages_to_testing_job_config(
-        config_url, rosdistro_name, release_build_name, os_code_name, arch,
-        config, build_file):
+        config_url, rosdistro_name, release_build_name, os_name, os_code_name,
+        arch, config, build_file):
     template_name = 'release/deb/sync_packages_to_testing_job.xml.em'
 
     repository_args, script_generating_key_files = \
@@ -828,6 +831,7 @@ def _get_sync_packages_to_testing_job_config(
         'config_url': config_url,
         'rosdistro_name': rosdistro_name,
         'release_build_name': release_build_name,
+        'os_name': os_name,
         'os_code_name': os_code_name,
         'arch': arch,
         'repository_args': repository_args,
