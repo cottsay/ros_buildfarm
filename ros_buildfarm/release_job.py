@@ -645,7 +645,8 @@ def _get_sourcedeb_job_config(
 
         'sourcedeb_files': sourcedeb_files,
 
-        'import_package_job_name': get_import_package_job_name(rosdistro_name),
+        'import_package_job_name': get_import_package_job_name(
+            rosdistro_name, package_format),
         'debian_package_name': get_os_package_name(
             rosdistro_name, pkg_name),
 
@@ -690,7 +691,7 @@ def _get_binarydeb_job_config(
             for var, value in sorted(build_file.build_environment_variables.items())]
 
     sync_to_testing_job_name = [get_sync_packages_to_testing_job_name(
-        rosdistro_name, os_code_name, arch)]
+        rosdistro_name, os_name, os_code_name, arch)]
 
     maintainer_emails = _get_maintainer_emails(cached_pkgs, pkg_name) \
         if build_file.notify_maintainers \
@@ -727,7 +728,8 @@ def _get_binarydeb_job_config(
         'binarydeb_files': binarydeb_files,
         'build_environment_variables': build_environment_variables,
 
-        'import_package_job_name': get_import_package_job_name(rosdistro_name),
+        'import_package_job_name': get_import_package_job_name(
+            rosdistro_name, package_format),
         'debian_package_name': get_os_package_name(
             rosdistro_name, pkg_name),
 
@@ -757,8 +759,13 @@ def configure_import_package_job(
         from ros_buildfarm.jenkins import connect
         jenkins = connect(config.jenkins_url)
 
-    job_name = get_import_package_job_name(rosdistro_name)
-    job_config = _get_import_package_job_config(build_file)
+    package_formats = set(
+        package_format_mapping[os_name] for os_name in build_file.targets.keys())
+    assert len(package_formats) == 1
+    package_format = package_formats.pop()
+
+    job_name = get_import_package_job_name(rosdistro_name, package_format)
+    job_config = _get_import_package_job_config(build_file, package_format)
 
     # jenkinsapi.jenkins.Jenkins evaluates to false if job count is zero
     if isinstance(jenkins, object) and jenkins is not False:
@@ -767,17 +774,20 @@ def configure_import_package_job(
     return (job_name, job_config)
 
 
-def get_import_package_job_name(rosdistro_name):
+def get_import_package_job_name(rosdistro_name, package_format):
     view_name = get_release_job_prefix(rosdistro_name)
-    return '%s_import-package' % view_name
+    return '%s_import-package%s' % (
+        view_name, '' if package_format == 'deb' else '-' + package_format)
 
 
-def _get_import_package_job_config(build_file):
-    template_name = 'release/deb/import_package_job.xml.em'
+def _get_import_package_job_config(build_file, package_format):
+    template_name = 'release/%s/import_package_job.xml.em' % package_format
     job_data = {
         'target_queue': build_file.target_queue,
         'abi_incompatibility_assumed': build_file.abi_incompatibility_assumed,
         'notify_emails': build_file.notify_emails,
+        'ros_buildfarm_repository': get_repository(),
+        'credential_id': build_file.upload_credential_id,
     }
     job_config = expand_template(template_name, job_data)
     return job_config
@@ -796,7 +806,7 @@ def configure_sync_packages_to_testing_job(
         jenkins = connect(config.jenkins_url)
 
     job_name = get_sync_packages_to_testing_job_name(
-        rosdistro_name, os_code_name, arch)
+        rosdistro_name, os_name, os_code_name, arch)
     job_config = _get_sync_packages_to_testing_job_config(
         config_url, rosdistro_name, release_build_name, os_name, os_code_name,
         arch, config, build_file)
@@ -809,16 +819,18 @@ def configure_sync_packages_to_testing_job(
 
 
 def get_sync_packages_to_testing_job_name(
-        rosdistro_name, os_code_name, arch):
+        rosdistro_name, os_name, os_code_name, arch):
     view_name = get_release_job_prefix(rosdistro_name)
-    return '%s_sync-packages-to-testing_%s_%s' % \
-        (view_name, os_code_name, arch)
+    return '%s_sync-packages-to-testing%s_%s_%s' % (
+        view_name, '' if package_format_mapping[os_name] == 'deb' else '_' + os_name,
+        os_code_name, arch)
 
 
 def _get_sync_packages_to_testing_job_config(
         config_url, rosdistro_name, release_build_name, os_name, os_code_name,
         arch, config, build_file):
-    template_name = 'release/deb/sync_packages_to_testing_job.xml.em'
+    package_format = package_format_mapping[os_name]
+    template_name = 'release/%s/sync_packages_to_testing_job.xml.em' % package_format
 
     repository_args, script_generating_key_files = \
         get_repositories_and_script_generating_key_files(build_file=build_file)
@@ -836,7 +848,11 @@ def _get_sync_packages_to_testing_job_config(
         'arch': arch,
         'repository_args': repository_args,
 
+        'import_package_job_name': get_import_package_job_name(
+            rosdistro_name, package_format),
+
         'notify_emails': build_file.notify_emails,
+        'credential_id': build_file.upload_credential_id,
     }
     job_config = expand_template(template_name, job_data)
     return job_config
