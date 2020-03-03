@@ -21,9 +21,9 @@ from ros_buildfarm.common import get_os_package_name
 def _get_source_tag(
         rosdistro_name, pkg_name, pkg_version, os_name, os_code_name):
     assert os_name in ['centos', 'fedora', 'rhel']
-    return 'rpm/%s-%s_%s' % \
-        (get_os_package_name(rosdistro_name, pkg_name),
-         pkg_version, os_code_name)
+    return 'rpm/%s-%s_%s' % (
+        get_os_package_name(rosdistro_name, pkg_name),
+        pkg_version, os_code_name)
 
 
 def build_sourcerpm(
@@ -85,5 +85,5 @@ def build_sourcerpm(
     for m in pkg.maintainers:
         maintainer_emails.add(m.email)
     if maintainer_emails:
-        print('Package maintainer emails: %s' %
-              ' '.join(sorted(maintainer_emails)))
+        print('Package maintainer emails: %s' % (
+            ' '.join(sorted(maintainer_emails))))

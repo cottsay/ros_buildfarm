@@ -39,8 +39,11 @@ class PulpTaskPoller:
             time.sleep(self._interval)
             timeout -= self._interval
             if timeout <= 0:
-                raise RuntimeError(
-                    "Pulp task '%s' did not complete (timed out)" % task.pulp_href)
+                task_cancel = pulpcore.TaskCancel('canceled')
+                task = self._tasks_api.tasks_cancel(task.pulp_href, task_cancel)
+                if task.state != 'completed':
+                    raise RuntimeError(
+                        "Pulp task '%s' did not complete (timed out)" % task.pulp_href)
 
             task = self._tasks_api.read(task.pulp_href)
 

@@ -42,7 +42,7 @@ def get_sourcerpm(
             '--no-cleanup-after',
             '--verbose',
             '--root', 'ros_buildfarm',
-            '--dnf-cmd', '--','download', '--source',
+            '--dnf-cmd', '--', 'download', '--source',
             '--disablerepo', '*',
             '--enablerepo', 'ros-buildfarm-target-source',
             '%s-%s.*' % (rpm_package_name, package_version)]

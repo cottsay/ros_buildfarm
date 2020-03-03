@@ -33,7 +33,7 @@ def main(argv=sys.argv[1:]):
         description='Upload package to pulp')
     parser.add_argument(
         'package_file',
-        nargs='+', metavar="FILE",
+        nargs='+', metavar='FILE',
         help='Package file paths to upload')
     add_argument_pulp_base_url(parser)
     add_argument_pulp_password(parser)
