@@ -66,6 +66,7 @@ if (repository_names) {
     script_generating_key_files=script_generating_key_files,
 ))@
 @[for ci_build_name in ci_build_names]@
+@{ cid_filename = '$WORKSPACE/docker_generate_ci_jobs/docker__%s.cid' % (ci_build_name) }@
 @(SNIPPET(
     'builder_shell',
     script='\n'.join([
@@ -75,13 +76,14 @@ if (repository_names) {
         'mkdir -p $WORKSPACE/reconfigure_jobs',
         '',
         '# monitor all subprocesses and enforce termination',
-        'python3 -u $WORKSPACE/ros_buildfarm/scripts/subprocess_reaper.py $$ --cid-file $WORKSPACE/docker_generate_ci_jobs/docker.cid > $WORKSPACE/docker_generate_ci_jobs/subprocess_reaper.log 2>&1 &',
+        'python3 -u $WORKSPACE/ros_buildfarm/scripts/subprocess_reaper.py' +
+        ' $$ --cid-file %s > $WORKSPACE/docker_generate_ci_jobs/subprocess_reaper.log 2>&1 &' % (cid_filename),
         '# sleep to give python time to startup',
         'sleep 1',
         '',
         '# generate Dockerfile, build and run it',
         '# generating the Dockerfiles for the actual CI tasks',
-        'echo "# BEGIN SECTION: Generate Dockerfile - reconfigure jobs"',
+        'echo "# BEGIN SECTION: Generate Dockerfile - reconfigure jobs for %s"' % (ci_build_name),
         'export PYTHONPATH=$WORKSPACE/ros_buildfarm:$PYTHONPATH',
         'if [ "$dry_run" = "true" ]; then DRY_RUN_FLAG="--dry-run"; fi',
         'if [ "$repository_names" != "" ]; then REPOSITORY_NAMES_FLAG="--repository-names $repository_names"; fi',
@@ -96,17 +98,17 @@ if (repository_names) {
         ' $REPOSITORY_NAMES_FLAG',
         'echo "# END SECTION"',
         '',
-        'echo "# BEGIN SECTION: Build Dockerfile - reconfigure jobs"',
+        'echo "# BEGIN SECTION: Build Dockerfile - reconfigure jobs for %s"' % (ci_build_name),
         'cd $WORKSPACE/docker_generate_ci_jobs',
         'python3 -u $WORKSPACE/ros_buildfarm/scripts/misc/docker_pull_baseimage.py',
         'docker build --force-rm -t ci_reconfigure_jobs .',
         'echo "# END SECTION"',
         '',
-        'echo "# BEGIN SECTION: Run Dockerfile - reconfigure jobs"',
+        'echo "# BEGIN SECTION: Run Dockerfile - reconfigure jobs for %s"' % (ci_build_name),
         '# -e=GIT_BRANCH= is required since Jenkins leaves the wc in detached state',
         'docker run' +
         ' --rm ' +
-        ' --cidfile=$WORKSPACE/docker_generate_ci_jobs/docker.cid' +
+        ' --cidfile=%s' % (cid_filename) +
         ' -e=GIT_BRANCH=$GIT_BRANCH' +
         ' --net=host' +
         ' -v $WORKSPACE/ros_buildfarm:/tmp/ros_buildfarm:ro' +

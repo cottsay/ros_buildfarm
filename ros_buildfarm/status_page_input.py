@@ -14,6 +14,7 @@
 
 from collections import namedtuple
 
+from .common import get_implicitly_ignored_package_names
 from .common import get_os_package_name
 
 MaintainerDescriptor = namedtuple('Maintainer', 'name email')
@@ -38,8 +39,25 @@ class RosPackage(object):
 
 
 def get_rosdistro_info(dist, build_file):
-    all_pkg_names = dist.release_packages.keys()
-    pkg_names = build_file.filter_packages(all_pkg_names)
+    pkg_names = dist.release_packages.keys()
+    cached_pkgs = {}
+    for pkg_name in pkg_names:
+        pkg_xml = dist.get_release_package_xml(pkg_name)
+        if pkg_xml is not None:
+            from catkin_pkg.package import InvalidPackage, parse_package_string
+            try:
+                pkg_manifest = parse_package_string(pkg_xml)
+            except InvalidPackage:
+                continue
+            cached_pkgs[pkg_name] = pkg_manifest
+
+    filtered_pkg_names = build_file.filter_packages(pkg_names)
+    explicitly_ignored_pkg_names = set(pkg_names) - set(filtered_pkg_names)
+    if explicitly_ignored_pkg_names:
+        implicitly_ignored_pkg_names = get_implicitly_ignored_package_names(
+            cached_pkgs, explicitly_ignored_pkg_names)
+        filtered_pkg_names = \
+            set(filtered_pkg_names) - implicitly_ignored_pkg_names
 
     packages = {}
     for pkg_name in pkg_names:
@@ -83,20 +101,22 @@ def get_rosdistro_info(dist, build_file):
         # maintainers and package url from manifest
         ros_pkg.maintainers = []
         ros_pkg.url = None
-        pkg_xml = dist.get_release_package_xml(pkg_name)
-        if pkg_xml is not None:
-            from catkin_pkg.package import InvalidPackage, parse_package_string
-            try:
-                pkg_manifest = parse_package_string(pkg_xml)
-                for m in pkg_manifest.maintainers:
-                    ros_pkg.maintainers.append(
-                        MaintainerDescriptor(m.name, m.email))
-                for u in pkg_manifest['urls']:
-                    if u.type == 'website':
-                        ros_pkg.url = u.url
-                        break
-            except InvalidPackage:
-                pass
+        if pkg_name in cached_pkgs:
+            pkg_manifest = cached_pkgs[pkg_name]
+            for m in pkg_manifest.maintainers:
+                ros_pkg.maintainers.append(
+                    MaintainerDescriptor(m.name, m.email))
+            for u in pkg_manifest['urls']:
+                if u.type == 'website':
+                    ros_pkg.url = u.url
+                    break
+
+        # handle ignored packages
+        if pkg_name not in filtered_pkg_names:
+            ros_pkg.version = None
+            ros_pkg.status = 'disabled'
+            ros_pkg.status_description = \
+                'disabled by the release build configuration'
 
         packages[pkg_name] = ros_pkg
     return packages
