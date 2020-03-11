@@ -13,7 +13,7 @@ config_opts['microdnf_builddep_opts'] = config_opts.get('microdnf_builddep_opts'
 
 @[if env_vars]@
 # Set environment vars from the build config
-@[for env_key, env_val in env_vars]@
+@[for env_key, env_val in env_vars.values()]@
 config_opts['environment']['@env_key'] = '@env_val'
 @[end for]
 @[end if]@
