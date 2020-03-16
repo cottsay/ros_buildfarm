@@ -40,7 +40,7 @@
 @(SNIPPET(
     'builder_shell',
     script='\n'.join([
-        'echo "# BEGIN SECTION: sync packages to testing repos"',
+        'echo "# BEGIN SECTION: sync packages to main repos"',
         'export PYTHONPATH=$WORKSPACE/ros_buildfarm:$PYTHONPATH',
         'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/sync_repo.py' +
         ' --pulp-base-url http://repo:24817' +

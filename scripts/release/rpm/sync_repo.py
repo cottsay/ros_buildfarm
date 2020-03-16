@@ -76,8 +76,8 @@ def main(argv=sys.argv[1:]):
 
         print('Matched %d packages from source distributions:' % (
             sum([len(pkgs) for pkgs in packages.values()])))
-        for dist, pkgs in packages.items():
-            print('- %s: %d matching packages' % (dist, len(pkgs)))
+        for dist_source in dists_to_sync.keys():
+            print('- %s: %d matching packages' % (dist_source, len(packages[dist_source])))
 
     with Scope('SUBSECTION', 'invalidation and committing changes'):
         for dist_source, dist_dest in dists_to_sync.items():
