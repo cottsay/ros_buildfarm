@@ -98,7 +98,7 @@
     script='\n'.join([
         'echo "# BEGIN SECTION: sync packages to testing repos"',
         'export PYTHONPATH=$WORKSPACE/ros_buildfarm:$PYTHONPATH',
-        'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/sync_repos.py' +
+        'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/sync_repo.py' +
         ' --pulp-base-url http://repo:24817' +
         ' --distribution-source-expression "^ros-building-%s-%s-(SRPMS|%s(-debug)?)$"' % (os_name, os_code_name, arch) +
         ' --distribution-dest-expression "ros-testing-%s-%s-\\1"' % (os_name, os_code_name) +
