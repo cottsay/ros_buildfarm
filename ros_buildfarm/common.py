@@ -509,7 +509,8 @@ def topological_order_packages(packages):
             decorator.package.run_depends + decorator.package.test_depends
         # skip external dependencies, meaning names that are not known packages
         unique_depend_names = set([
-            d.name for d in all_depends if d.name in decorators_by_name.keys()])
+            d.name for d in all_depends if d.name in decorators_by_name.keys() and
+            d.evaluated_condition is not False])
         for name in unique_depend_names:
             if name in decorator.depends_for_topological_order:
                 # avoid function call to improve performance
@@ -553,13 +554,13 @@ def get_system_architecture():
     raise RuntimeError('Unable to determine architecture')
 
 
-def get_packages_in_workspaces(workspace_roots, condition_context):
+def get_packages_in_workspaces(workspace_roots, condition_context=None):
     """
     Return packages found in the passed workspaces.
 
     :param workspace_roots: A list of absolute paths to workspaces
-    :param condition_context: A dict containing environment variables for the
-      conditions in the package manifests
+    :param condition_context: An optional dict containing environment variables
+      for the conditional evaluation in the package manifests
     :returns: A list of ``Package`` objects
     """
     from catkin_pkg.packages import find_packages
@@ -569,9 +570,10 @@ def get_packages_in_workspaces(workspace_roots, condition_context):
         source_space = os.path.join(workspace_root, 'src')
         print("Crawling for packages in workspace '%s'" % source_space)
         ws_pkgs = find_packages(source_space)
-        for pkg in ws_pkgs.values():
-            pkg.evaluate_conditions(condition_context)
         pkgs.update(ws_pkgs)
+    if condition_context is not None:
+        for pkg in pkgs.values():
+            pkg.evaluate_conditions(condition_context)
     return pkgs
 
 
@@ -612,7 +614,8 @@ def get_direct_dependencies(pkg_name, cached_pkgs, pkg_names):
             pkg.build_export_depends +
             pkg.exec_depends +
             pkg.test_depends)
-        if d.name in pkg_names])
+        if d.name in pkg_names and
+        d.evaluated_condition is not False])
     return depends
 
 
@@ -644,3 +647,20 @@ def get_implicitly_ignored_package_names(cached_pkgs, explicitly_ignored_pkg_nam
         break
 
     return ignored_pkg_names.difference(explicitly_ignored_pkg_names)
+
+
+def get_package_condition_context(index, rosdistro_name):
+    python_version = index.distributions[rosdistro_name].get('python_version')
+    ros_version = {
+        'ros1': '1',
+        'ros2': '2',
+    }.get(index.distributions[rosdistro_name].get('distribution_type'))
+
+    condition_context = {
+        'ROS_DISTRO': rosdistro_name,
+    }
+    if python_version:
+        condition_context['ROS_PYTHON_VERSION'] = python_version
+    if ros_version:
+        condition_context['ROS_VERSION'] = ros_version
+    return condition_context
