@@ -56,17 +56,15 @@ def main(argv=sys.argv[1:]):
             args.invalidate_expression, args.invalidate)
 
     with Scope('SUBSECTION', 'enumerating results'):
-        print('New packages added to the repository:')
         if not pkgs_added:
-            print('- (none)')
+            print('Not importing any new packages)')
         for pkg in pkgs_added:
-            print('- %s-%s' % (pkg.name, format_pkg_ver(pkg)))
+            print('Importing package: %s-%s.%s' % (pkg.name, format_pkg_ver(pkg), pkg.arch))
 
-        print('Packages removed from the repository:')
         if not pkgs_removed:
-            print('- (none)')
+            print('Not removing any existing packages')
         for pkg in pkgs_removed:
-            print('- %s-%s' % (pkg.name, format_pkg_ver(pkg)))
+            print('Removing package: %s-%s.%s' % (pkg.name, format_pkg_ver(pkg), pkg.arch))
 
 
 if __name__ == '__main__':
