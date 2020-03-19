@@ -63,7 +63,7 @@
     script='\n'.join([
         'echo "# BEGIN SECTION: import RPM package"',
         'if [ "$INVALIDATE_DOWNSTREAM" = "true" ]; then INVALIDATE_ARG=--invalidate; fi',
-        'if [ "$DRY_RUN" = "true" ]; then DRY_RUN_ARG="--dry-run"; fi'
+        'if [ "$DRY_RUN" = "true" ]; then DRY_RUN_ARG="--dry-run"; fi',
         'if [ "$INVALIDATE_EXPRESSION" != "" ]; then INVALIDATE_EXPRESSION_ARG="--invalidate-expression $INVALIDATE_EXPRESSION"; fi',
         'export PYTHONPATH=$WORKSPACE/ros_buildfarm:$PYTHONPATH',
         'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/import_package.py' +
