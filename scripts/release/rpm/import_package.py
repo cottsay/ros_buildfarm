@@ -60,7 +60,7 @@ def main(argv=sys.argv[1:]):
 
     with Scope('SUBSECTION', 'enumerating results'):
         if not pkgs_added:
-            print('Not importing any new packages)')
+            print('Not importing any new packages')
         for pkg in pkgs_added:
             print('Importing package: %s-%s.%s' % (pkg.name, format_pkg_ver(pkg), pkg.arch))
 
