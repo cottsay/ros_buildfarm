@@ -16,7 +16,8 @@ import os
 import re
 import time
 
-from pulpcore.client import pulp_rpm, pulpcore
+from pulpcore.client import pulp_rpm
+from pulpcore.client import pulpcore
 
 
 def format_pkg_ver(pkg):

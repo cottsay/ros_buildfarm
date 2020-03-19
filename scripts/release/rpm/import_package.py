@@ -17,6 +17,7 @@
 import argparse
 import sys
 
+from ros_buildfarm.argument import add_argument_dry_run
 from ros_buildfarm.argument import add_argument_invalidate
 from ros_buildfarm.argument import add_argument_pulp_base_url
 from ros_buildfarm.argument import add_argument_pulp_distribution_name
@@ -24,7 +25,8 @@ from ros_buildfarm.argument import add_argument_pulp_password
 from ros_buildfarm.argument import add_argument_pulp_task_timeout
 from ros_buildfarm.argument import add_argument_pulp_username
 from ros_buildfarm.common import Scope
-from ros_buildfarm.pulp import format_pkg_ver, PulpRpmClient
+from ros_buildfarm.pulp import format_pkg_ver
+from ros_buildfarm.pulp import PulpRpmClient
 
 
 def main(argv=sys.argv[1:]):
@@ -34,6 +36,7 @@ def main(argv=sys.argv[1:]):
         'package_resources',
         nargs='*', metavar="PULP_HREF",
         help='Identifiers for packages which should be imported')
+    add_argument_dry_run(parser)
     add_argument_invalidate(parser)
     parser.add_argument(
         '--invalidate-expression',
@@ -53,7 +56,7 @@ def main(argv=sys.argv[1:]):
     with Scope('SUBSECTION', 'performing repository transaction'):
         pkgs_added, pkgs_removed = pulp_client.import_and_invalidate(
             args.pulp_distribution_name, args.package_resources,
-            args.invalidate_expression, args.invalidate)
+            args.invalidate_expression, args.invalidate, dry_run=args.dry_run)
 
     with Scope('SUBSECTION', 'enumerating results'):
         if not pkgs_added:
