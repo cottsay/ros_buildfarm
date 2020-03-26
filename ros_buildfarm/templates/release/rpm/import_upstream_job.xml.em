@@ -21,14 +21,14 @@
         {
             'type': 'string',
             'name': 'REMOTE_SOURCE_EXPRESSION',
-            'default': '^ros-bootstrap-([^-]*-[^-]*-[^-]*(-debug)?)$',
             'description': 'Expression to match pulp remote repositories',
+            'default_value': '^ros-bootstrap-([^-]*-[^-]*-[^-]*(-debug)?)$',
         },
         {
             'type': 'string',
             'name': 'DISTRIBUTION_DEST_EXPRESSION',
-            'default': '^ros-(building|testing|main)-\\1$',
             'description': 'Expression to transform source remote to destination pulp distribution',
+            'default_value': '^ros-(building|testing|main)-\\1$',
         },
         {
             'type': 'boolean',
