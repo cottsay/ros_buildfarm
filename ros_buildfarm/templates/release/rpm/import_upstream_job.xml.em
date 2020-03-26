@@ -59,13 +59,11 @@
     'builder_shell',
     script='\n'.join([
         'echo "# BEGIN SECTION: mirror repositories to pulp"',
-        'if [ "$EXECUTE_IMPORT" != "true" ]; then DRY_RUN_ARG="--dry-run"; fi',
         'export PYTHONPATH=$WORKSPACE/ros_buildfarm:$PYTHONPATH',
         'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/mirror_repo.py' +
         ' --pulp-base-url http://repo:24817' +
         ' --remote-source-expression "$REMOTE_SOURCE_EXPRESSION"' +
-        ' --distribution-dest-expression "^\\g<0>$"' +
-        ' $DRY_RUN_ARG',
+        ' --distribution-dest-expression "^\\g<0>$"',
         'echo "# END SECTION"',
         '',
         'echo "# BEGIN SECTION: sync packages from mirrors to repos"',
@@ -74,7 +72,7 @@
         'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/sync_repo.py' +
         ' --pulp-base-url http://repo:24817' +
         ' --distribution-source-expression $REMOTE_SOURCE_EXPRESSION' +
-        ' --distribution-dest-expression $DISTRIBUTION_DEST_EXPRESSION',
+        ' --distribution-dest-expression $DISTRIBUTION_DEST_EXPRESSION' +
         ' $DRY_RUN_ARG',
         'echo "# END SECTION"',
     ]),
