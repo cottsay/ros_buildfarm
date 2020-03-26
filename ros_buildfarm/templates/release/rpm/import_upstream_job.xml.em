@@ -62,7 +62,7 @@
         'export PYTHONPATH=$WORKSPACE/ros_buildfarm:$PYTHONPATH',
         'python3 -u $WORKSPACE/ros_buildfarm/scripts/release/rpm/mirror_repo.py' +
         ' --pulp-base-url http://repo:24817' +
-        ' --remote-source-expression "$REMOTE_SOURCE_EXPRESSION"' +
+        ' --remote-source-expression $REMOTE_SOURCE_EXPRESSION' +
         ' --distribution-dest-expression "^\\g<0>$"',
         'echo "# END SECTION"',
         '',
