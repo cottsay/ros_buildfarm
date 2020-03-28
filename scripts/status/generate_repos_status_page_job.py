@@ -61,8 +61,8 @@ def get_job_config(args, config):
         if data is not None:
             status_pages[name] = data
         else:
-            print(("Skipping repos status page '%s' since no repository URL" +
-                   'matches any of the release build files') % name)
+            print(("Skipping repos status page '%s' since no repository URLs " +
+                   'matche any of the release build files') % name)
 
     job_data = copy.deepcopy(args.__dict__)
     job_data.update({
