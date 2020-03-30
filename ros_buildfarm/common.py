@@ -20,9 +20,6 @@ try:
 except ImportError:
     from urlparse import urlparse
 
-from .debian_repo import get_debian_repo_index
-from .rpm_repo import get_ros_rpm_repo_index
-
 
 package_format_mapping = {
     'debian': 'deb',
@@ -43,6 +40,31 @@ class JobValidationError(Exception):
 
     def __init__(self, message):  # noqa: D107
         super(JobValidationError, self).__init__(message)
+
+
+class RepositoryPackageDescriptor(str):
+    """
+    Represents a package stored in a platform-specific package
+    repository.
+
+    Currently the class is inheriting from str for backwards compatibility.
+    You should not rely on this but use the `version` property instead.
+
+    To be replaced with:
+    namedtuple('RepositoryPackageDescriptor', 'name version source_name')
+    """
+
+    @staticmethod
+    def __new__(cls, name, version, source_name):
+        return str.__new__(cls, version)
+
+    def __init__(self, name, version, source_name):
+        self.name = name
+        self.source_name = source_name
+
+    @property
+    def version(self):
+        return str(self)
 
 
 next_scope_id = 1
@@ -578,22 +600,6 @@ def get_packages_in_workspaces(workspace_roots, condition_context=None):
         for pkg in pkgs.values():
             pkg.evaluate_conditions(condition_context)
     return pkgs
-
-
-def get_package_repo_data(repository_baseurl, targets, cache_dir):
-    get_index_methods = {
-        'deb': get_debian_repo_index,
-        'rpm': get_ros_rpm_repo_index,
-    }
-
-    data = {}
-    for target in targets:
-        package_format = package_format_mapping[target.os_name]
-        get_index_method = get_index_methods[package_format]
-        index = get_index_method(
-            repository_baseurl, target, cache_dir)
-        data[target] = index
-    return data
 
 
 def get_xunit_publisher_types_and_patterns():

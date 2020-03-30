@@ -20,11 +20,11 @@ from rosdistro import get_index
 
 from .common import get_binarydeb_job_name
 from .common import get_os_package_name
-from .common import get_package_repo_data
 from .common import get_sourcedeb_job_name
 from .common import Target
 from .config import get_index as get_config_index
 from .config import get_release_build_files
+from .package_repo import get_package_repo_data
 from .status_page import _strip_version_suffix
 from .templates import expand_template
 
@@ -105,7 +105,7 @@ def trigger_release_jobs(
                 # check if artifact is missing
                 repo_index = repo_data[target]
                 if debian_package_name in repo_index:
-                    version = repo_index[debian_package_name]
+                    version = repo_index[debian_package_name].version
                     version = _strip_version_suffix(version)
                     if version == pkg_version:
                         print(("  Skipping job '%s' since the artifact is " +
