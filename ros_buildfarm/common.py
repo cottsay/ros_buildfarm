@@ -51,15 +51,16 @@ class RepositoryPackageDescriptor(str):
     You should not rely on this but use the `version` property instead.
 
     To be replaced with:
-    namedtuple('RepositoryPackageDescriptor', 'name version')
+    namedtuple('RepositoryPackageDescriptor', 'name version source_name')
     """
 
     @staticmethod
-    def __new__(cls, name, version):
+    def __new__(cls, name, version, source_name):
         return str.__new__(cls, version)
 
-    def __init__(self, name, version):
+    def __init__(self, name, version, source_name):
         self.name = name
+        self.source_name = source_name
 
     @property
     def version(self):
