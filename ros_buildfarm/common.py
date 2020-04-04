@@ -42,7 +42,7 @@ class JobValidationError(Exception):
         super(JobValidationError, self).__init__(message)
 
 
-class RepositoryPackageDescriptor(str):
+class PlatformPackageDescriptor(str):
     """
     Represents a package stored in a platform-specific package
     repository.
@@ -51,15 +51,14 @@ class RepositoryPackageDescriptor(str):
     You should not rely on this but use the `version` property instead.
 
     To be replaced with:
-    namedtuple('RepositoryPackageDescriptor', 'name version source_name')
+    namedtuple('PlatformPackageDescriptor', 'version source_name')
     """
 
     @staticmethod
-    def __new__(cls, name, version, source_name):
+    def __new__(cls, version, source_name):
         return str.__new__(cls, version)
 
-    def __init__(self, name, version, source_name):
-        self.name = name
+    def __init__(self, version, source_name):
         self.source_name = source_name
 
     @property

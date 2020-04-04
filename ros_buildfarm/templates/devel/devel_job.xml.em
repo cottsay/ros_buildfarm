@@ -262,7 +262,7 @@ if pull_request:
   <publishers>
 @(SNIPPET(
     'publisher_warnings',
-    unstable_threshold=0 if notify_compiler_warnings else '',
+    unstable_threshold=1 if notify_compiler_warnings else '',
 ))@
 @[if xunit_publisher_types]@
 @(SNIPPET(
@@ -278,9 +278,8 @@ if pull_request:
         'import jenkins.model.Jenkins',
         'import hudson.FilePath',
         '',
-        '@Grab(\'org.yaml:snakeyaml:1.17\')',
-        'import org.yaml.snakeyaml.Yaml',
-        'import org.yaml.snakeyaml.DumperOptions',
+        'import org.jenkinsci.plugins.pipeline.utility.steps.shaded.org.yaml.snakeyaml.Yaml',
+        'import org.jenkinsci.plugins.pipeline.utility.steps.shaded.org.yaml.snakeyaml.DumperOptions',
         '',
         'manager.listener.logger.println("# BEGIN SECTION: Collate test results for wiki.")',
         '',
