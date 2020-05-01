@@ -20,7 +20,7 @@ class CIBuildFile(BuildFile):
 
     _type = 'ci-build'
 
-    def __init__(self, name, data):
+    def __init__(self, name, data):  # noqa: D107
         assert 'type' in data, "Expected file type is '%s'" % \
             CIBuildFile._type
         assert data['type'] == CIBuildFile._type, \
@@ -43,6 +43,10 @@ class CIBuildFile(BuildFile):
         self.build_tool_args = None
         if 'build_tool_args' in data:
             self.build_tool_args = data['build_tool_args']
+
+        self.build_tool_test_args = None
+        if 'build_tool_test_args' in data:
+            self.build_tool_test_args = data['build_tool_test_args']
 
         self.install_packages = []
         if 'install_packages' in data:
@@ -93,6 +97,12 @@ class CIBuildFile(BuildFile):
         if 'underlay_from_ci_jobs' in data:
             self.underlay_from_ci_jobs = data['underlay_from_ci_jobs']
             assert isinstance(self.underlay_from_ci_jobs, list)
+
+        self.archive_files = []
+        if 'archive_files' in data:
+            self.archive_files = data['archive_files']
+            assert isinstance(self.archive_files, list)
+            assert all(isinstance(path, str) for path in self.archive_files)
 
         self.show_images = {}
         if 'show_images' in data:

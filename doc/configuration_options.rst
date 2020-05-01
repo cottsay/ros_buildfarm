@@ -432,6 +432,9 @@ The following options are valid in version ``1`` (beside the generic options):
 
 * ``build_tool_args``: arbitrary arguments passed to the build tool.
 
+* ``build_tool_test_args``: arbitrary arguments passed to the build tool during
+  testing.
+
 * ``install_packages``: a list of packages which should be installed by default
   before any of the dependencies necessary to build the packages in the
   workspace.
@@ -461,6 +464,9 @@ The following options are valid in version ``1`` (beside the generic options):
 * ``repository_names``: the names of repositories in the rosdistro to be
   checkout into the workspace with their branch specified in the ``source``
   entry.
+
+* ``archive_files``: a list of workspace-relative paths and/or glob expressions to
+  files to be kept as additional build artifacts.
 
 * ``show_images``: a dictionary of lists, where the key is the title of a group
   of image artifacts to display and the list contains workspace-relative paths
