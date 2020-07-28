@@ -19,7 +19,7 @@ config_opts['environment']['@env_key'] = '@env_val'
 @[end for]
 @[end if]@
 # Disable debug source packages, don't terminate build IDs aren't right
-config_opts['macros']['%_debugsource_packages'] = '%{nil}'
+config_opts['macros']['%_debugsource_template'] = '%{nil}'
 config_opts['macros']['%_missing_build_ids_terminate_build'] = '%{nil}'
 
 # Hack the %{dist} macro to allow release suffixing
