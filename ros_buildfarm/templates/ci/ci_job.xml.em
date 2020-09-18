@@ -8,6 +8,10 @@ but disabled since the package is blacklisted (or not whitelisted) in the config
   <keepDependencies>false</keepDependencies>
   <properties>
 @(SNIPPET(
+    'property_authorization-matrix',
+    project_authorization_xml=project_authorization_xml,
+))@
+@(SNIPPET(
     'property_log-rotator',
     days_to_keep=730,
     num_to_keep=100,
@@ -80,8 +84,8 @@ parameters = [
     parameters=parameters,
 ))@
 @(SNIPPET(
-    'property_authorization-matrix',
-    project_authorization_xml=project_authorization_xml
+    'property_job-weight',
+    weight=job_weight,
 ))@
   </properties>
   <scm class="hudson.scm.NullSCM"/>
@@ -436,6 +440,13 @@ parameters = [
       image for images in show_images.values() for image in images
     ],
 ))@
+@[if benchmark_patterns]@
+@(SNIPPET(
+    'publisher_benchmark',
+    patterns=benchmark_patterns,
+    schema=benchmark_schema,
+))@
+@[end if]@
 @[for title, artifacts in show_images.items()]@
 @(SNIPPET(
     'image_gallery',

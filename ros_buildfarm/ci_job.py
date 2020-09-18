@@ -256,6 +256,7 @@ def _get_ci_job_config(
 
     job_data = {
         'job_priority': build_file.jenkins_job_priority,
+        'job_weight': build_file.jenkins_job_weight,
         'node_label': get_node_label(
             build_file.jenkins_job_label,
             get_default_node_label('%s_%s' % (
@@ -305,6 +306,9 @@ def _get_ci_job_config(
         # JUnit compliant result files
         'xunit_publisher_types': get_xunit_publisher_types_and_patterns(
             ros_version, os_name == 'ubuntu' and os_code_name != 'bionic'),
+
+        'benchmark_patterns': build_file.benchmark_patterns,
+        'benchmark_schema': build_file.benchmark_schema,
     }
     job_config = expand_template(template_name, job_data)
     return job_config

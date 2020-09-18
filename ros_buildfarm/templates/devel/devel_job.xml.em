@@ -50,6 +50,9 @@ if pull_request:
     'property_parameters-definition',
     parameters=parameters,
 ))@
+@(SNIPPET(
+    'property_job-weight',
+))@
   </properties>
 @[if not pull_request]@
 @(SNIPPET(
@@ -274,6 +277,13 @@ if pull_request:
     build_tool=build_tool,
     unstable_threshold=1 if notify_compiler_warnings else '',
 ))@
+@[if benchmark_patterns]@
+@(SNIPPET(
+    'publisher_benchmark',
+    patterns=benchmark_patterns,
+    schema=benchmark_schema,
+))@
+@[end if]@
 @[if xunit_publisher_types]@
 @(SNIPPET(
     'publisher_xunit',
