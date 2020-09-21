@@ -39,6 +39,9 @@ config_opts['macros']['%_buildshell'] = '/usr/bin/scl enable devtoolset-8 -- /bi
 
 # Disable weak dependencies on RHEL 7 builds
 config_opts['macros']['%_without_weak_deps'] = '1'
+
+# Use -Wl,--as-needed
+config_opts['macros']['%__global_ldflags'] = '-Wl,-z,relro -Wl,--as-needed %{_hardened_ldflags}'
 @[else]@
 # Add g++, which is an assumed dependency in ROS
 config_opts['chroot_setup_cmd'] += ' gcc-c++ make'
